@@ -6,9 +6,10 @@ import { challengeProgress, challenges, userProgress } from "@/db/schema"
 import { auth } from "@clerk/nextjs/server"
 import { and, eq } from "drizzle-orm"
 import { revalidatePath } from "next/cache"
+import { v4 as uuidv4 } from "uuid"
 
-export const upsertChallengeProgress = async (challengeId: number) => {
-  const { userId } = await auth()
+export const upsertChallengeProgress = async (challengeId: string) => {
+  const { userId } = auth()
 
   if(!userId){
     throw new Error("Unauthorized")
@@ -67,6 +68,7 @@ export const upsertChallengeProgress = async (challengeId: number) => {
   }
 
   await db.insert(challengeProgress).values({
+    id: uuidv4(),
     challengeId,
     userId,
     completed: true

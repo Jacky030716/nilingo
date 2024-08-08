@@ -5,7 +5,8 @@ import {
   challengeProgress, 
   lessons, 
   userSubscription,
-  quests
+  quests,
+  userSettings
 } from '@/db/schema';
 import { cache } from "react";
 import db from "./drizzle";
@@ -33,7 +34,7 @@ export const getUserProgress = cache(async() => {
   return data;
 })
 
-export const getCourseById = cache(async (courseId: number) => {
+export const getCourseById = cache(async (courseId: string) => {
   const data = await db.query.courses.findFirst({
     where: eq(courses.id, courseId),
     with: {
@@ -145,7 +146,7 @@ export const getCourseProgress = cache(async () => {
   }
 })
 
-export const getLesson = cache(async (id?: number) => {
+export const getLesson = cache(async (id?: string) => {
   const { userId } = await auth();
 
   if(!userId) return null;
@@ -247,7 +248,7 @@ export const getTopTenUsers = cache(async () => {
 })
 
 // Get quests
-export const getQuests = cache(async () => {
+export const getQuests = async () => {
   const { userId } = auth();
 
   if(!userId) return [];
@@ -256,5 +257,22 @@ export const getQuests = cache(async () => {
     orderBy: (quests, {asc}) => [asc(quests.expiredTime)],
   })
 
-  return data
-})
+  const normalizedData = data.filter((quest) => quest.completed === false && quest.expiredTime > new Date())
+
+  return normalizedData
+}
+
+export const getLanguageSetting = async() => {
+  const { userId } = auth();
+
+  if(!userId) return null;
+
+  try {
+    const data = await db.query.userSettings.findFirst();
+    console.log("Language setting data:", data); // Add this line for debugging
+    return data;
+  } catch (error) {
+    console.error("Error fetching language settings:", error);
+    return null;
+  }
+}

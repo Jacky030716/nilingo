@@ -3,7 +3,7 @@ import UnitBanner from "./UnitBanner";
 import LessonButton from "./LessonButton";
 
 type Props = {
-  id: number;
+  id: string;
   order: number;
   title: string;
   desc: string;

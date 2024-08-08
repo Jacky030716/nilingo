@@ -10,7 +10,7 @@ import "react-circular-progressbar/dist/styles.css";
 import Link from "next/link";
 
 type Props = {
-  id: number;
+  id: string;
   index: number;
   totalCount: number;
   locked?: boolean;

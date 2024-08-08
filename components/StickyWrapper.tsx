@@ -1,3 +1,6 @@
+"use client"
+import { CldImage } from "next-cloudinary"
+
 type Props = {
   children: React.ReactNode
 }

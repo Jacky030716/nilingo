@@ -2,7 +2,8 @@
 
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { CheckCircle, XCircle } from "lucide-react";
+import { useSettingModal } from "@/store/use_setting_modal";
+import { CheckCircle, Settings, XCircle } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useKey, useMedia } from "react-use"
 
@@ -10,7 +11,7 @@ type Props = {
   disabled?: boolean;
   status: "correct" | "incorrect" | "none" | "completed";
   onCheck: () => void;
-  lessonId?: number;
+  lessonId?: string;
 }
 
 const Footer = ({
@@ -21,6 +22,7 @@ const Footer = ({
 }: Props) => {
   useKey("Enter", onCheck, {}, [onCheck])
   const isMobile = useMedia("(max-width: 1024px")
+  const { openModal } = useSettingModal()
 
   const router = useRouter()
 
@@ -31,6 +33,11 @@ const Footer = ({
       status === "incorrect" && "border-transparent bg-rose-100",
     )}>
       <div className="max-w-[1140px] h-full mx-auto flex items-center justify-between px-6 lg:px-10">
+        <Settings
+          size={36} 
+          className="text-neutral-500 cursor-pointer"
+          onClick={openModal}
+        />
         {status === "correct" && (
           <div className="text-emerald-500 font-bold text-base lg:text-2xl flex items-center">
             <CheckCircle className="h-6 w-6 lh:h-10 lg:w-10 mr-4"/>

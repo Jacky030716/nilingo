@@ -24,6 +24,9 @@ const nextConfig = {
         ]
       }
     ]
+  },
+  images: {
+    domains: ['pixabay.com'],
   }
 };
 

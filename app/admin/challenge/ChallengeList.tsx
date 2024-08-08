@@ -19,6 +19,7 @@ const ChallengeList = () => {
             }
           ]}
         />
+        <TextField source="questionAudioSrc" />
         <ReferenceField source="lessonId" reference="lessons"/>
         <NumberField source="order" />
       </Datagrid>

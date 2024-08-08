@@ -3,25 +3,31 @@ import Promo from '@/components/Promo'
 import StickyWrapper from '@/components/StickyWrapper'
 import { Progress } from '@/components/ui/progress'
 import UserProgress from '@/components/UserProgress'
-import { quests } from '@/constant'
 
-import { getUserProgress, getUserSubscriptions } from '@/db/queries'
-import Image from 'next/image'
+import { getQuests, getUserProgress, getUserSubscriptions } from '@/db/queries'
 import { redirect } from 'next/navigation'
+import { formatDistance, formatDistanceToNow, subDays } from 'date-fns'
+import Image from 'next/image'
+import { CldImage } from 'next-cloudinary'
 
 const LeaderboardPage = async () => {
   const userProgressData = getUserProgress()
   const userSubscriptionData = getUserSubscriptions()
+  const questData = getQuests()
 
   const [
     userProgress,
-    userSub
+    userSub,
+    quests
   ] = await Promise.all([
     userProgressData,
     userSubscriptionData,
+    questData
   ])
 
   if(!userProgress || !userProgress.activeCourse) redirect('/courses')
+  
+  if(!quests) return []
 
   const isPro = !!userSub?.isActive
 
@@ -54,7 +60,10 @@ const LeaderboardPage = async () => {
           </p>
           <ul className='w-full'>
             {quests.map((q) => {
-              const progress = (userProgress.points / q.value) * 100
+              const progress = (userProgress.points / q.points) * 100
+              const remainingDay = formatDistanceToNow(q.expiredTime, {
+                addSuffix: true
+              })
 
               return (
                 <div
@@ -64,13 +73,18 @@ const LeaderboardPage = async () => {
                   <Image 
                     src="/assets/star.svg"
                     alt='Star'
-                    width={60}
-                    height={60}
+                    width={45}
+                    height={45}
                   />
                   <div className='flex flex-col gap-y-2 w-full'>
-                    <p className='text-neutral-700 text-xl font-bold'>
-                      {q.title}
-                    </p>
+                    <div className='flex justify-between items-center'>
+                      <p className='text-neutral-700 text-lg font-bold flex justify-between items-center'>
+                        {q.title}
+                      </p>
+                      <p className='text-md font-light text-neutral-500'>
+                        ends {remainingDay}
+                      </p>
+                    </div>
                     <Progress value={progress} className='h-3'/>
                   </div>
                 </div>

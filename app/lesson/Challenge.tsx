@@ -1,14 +1,22 @@
+import React, { useEffect } from 'react';
 import { challengeOptions, challenges } from "@/db/schema"
 import { cn } from "@/lib/utils";
 import Card from "./Card";
+import useDebounce from "@/lib/useDebounce";
 
 type Props = {
   options: (typeof challengeOptions.$inferSelect)[];
-  onSelect: (id: number) => void;
+  onSelect: (id: string) => void;
   status: "correct" | "incorrect" | "none";
-  selectedOption?: number;
+  selectedOption?: string;
   disabled?: boolean;
   type: typeof challenges.$inferSelect["type"]; 
+  languageIndex?: number;
+  initialSettings: {
+    speed: number;
+    volume: number;
+  }
+  setInitialSettings: (settings: { speed: number; volume: number }) => void;
 }
 
 const Challenge = ({
@@ -17,7 +25,10 @@ const Challenge = ({
   status,
   selectedOption,
   disabled,
-  type
+  type,
+  languageIndex,
+  initialSettings,
+  setInitialSettings
 }: Props) => {
   return (
     <div className={cn(
@@ -35,12 +46,16 @@ const Challenge = ({
           selected={selectedOption === option.id}
           onClick={() => onSelect(option.id)}
           status={status}
-          audioSrc={option.audioSrc}
           disabled={disabled}
           type={type}
+          languageIndex={languageIndex}
+          initialSettings={initialSettings}
+          setInitialSettings={setInitialSettings}
+          useDebounce={useDebounce}
         />
       ))}
     </div>
   )
 }
-export default Challenge
+
+export default Challenge;

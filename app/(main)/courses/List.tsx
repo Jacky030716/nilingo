@@ -18,7 +18,7 @@ const List = ({
   const router = useRouter();
   const [pending, startTransition] = useTransition()
 
-  const onClick = (id: number) => {
+  const onClick = (id: string) => {
     if(pending) return
 
     if(id === activeCourseId) return router.push('/learn')

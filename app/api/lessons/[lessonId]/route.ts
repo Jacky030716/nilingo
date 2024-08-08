@@ -6,12 +6,12 @@ import { isAdmin } from '@/lib/admin';
 
 export const GET = async (
   req: Request,
-  { params } : { params: { lessonId: number }}
+  { params } : { params: { lessonId: string }}
 ) => {
   try {
     if(!isAdmin()) return new NextResponse("Unauthorized", { status: 401 });
 
-    const data = await db.query.courses.findFirst({
+    const data = await db.query.lessons.findFirst({
       where: eq(lessons.id, params.lessonId)
     });
 
@@ -24,7 +24,7 @@ export const GET = async (
 
 export const PUT = async (
   req: Request,
-  { params } : { params: { lessonId: number }}
+  { params } : { params: { lessonId: string }}
 ) => {
   try {
     if(!isAdmin()) return new NextResponse("Unauthorized", { status: 401 });
@@ -43,7 +43,7 @@ export const PUT = async (
 
 export const DELETE = async (
   req: Request,
-  { params } : { params: { lessonId: number }}
+  { params } : { params: { lessonId: string }}
 ) => {
   try {
     if(!isAdmin()) return new NextResponse("Unauthorized", { status: 401 });

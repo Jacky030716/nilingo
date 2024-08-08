@@ -21,7 +21,7 @@ const UnitBanner = ({
           {desc}
         </p>
       </div>
-      <Link href="/lessons">
+      <Link href="/lesson">
         <Button
           size="lg"
           variant="secondary"

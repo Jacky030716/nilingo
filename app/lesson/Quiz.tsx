@@ -1,6 +1,6 @@
 "use client"
 
-import { challengeOptions, challenges, userSubscription } from "@/db/schema";
+import { challengeOptions, challenges, userSettings, userSubscription } from "@/db/schema";
 import { useState, useTransition } from "react";
 import Confetti from "react-confetti";
 import Header from "./Header";
@@ -19,7 +19,7 @@ import { usePracticeModal } from "@/store/use_practice_modal";
 
 type Props = {
   initialPercentage: number;
-  initialLessonId: number;
+  initialLessonId: string;
   initialHearts: number;
   initialLessonChallenges: (typeof challenges.$inferSelect & {
     completed: boolean;
@@ -28,6 +28,7 @@ type Props = {
   userSubscription: typeof userSubscription.$inferSelect & {
     isActive: boolean;
   } | null;
+  languageIndex?: number;
 }
 
 const Quiz = ({
@@ -35,10 +36,16 @@ const Quiz = ({
   initialLessonId,
   initialHearts,
   initialLessonChallenges,
-  userSubscription
+  userSubscription,
+  languageIndex
 }: Props) => {
   const { openModal: openHeartModal } = useHeartModal()
   const { openModal: openPracticeModal } = usePracticeModal()
+
+  const [initialSettings, setInitialSettings] = useState({
+    speed: 1,
+    volume: 1
+  })
 
   // Correct Sound
   const [
@@ -86,10 +93,10 @@ const Quiz = ({
     return uncompletedIndex === -1 ? 0 : uncompletedIndex
   })
 
-  const [selectedOption, setSelectedOption] = useState<number>()
+  const [selectedOption, setSelectedOption] = useState<string>()
   const [status, setStatus] = useState<"correct" | "incorrect" | "none">("none")
 
-  const onSelect = (id: number) => {
+  const onSelect = (id: string) => {
     if(status !== "none") return;
 
     setSelectedOption(id)
@@ -152,7 +159,7 @@ const Quiz = ({
               openHeartModal();
               return;
             }
-
+            incorrectControls.play();
             setStatus("incorrect")
 
             if(!res?.error){
@@ -221,7 +228,7 @@ const Quiz = ({
     : challenge.question
 
   return (
-    <>
+    <div className="flex flex-col gap-y-6 overflow-y-hidden">
       {correctAudio}
       {incorrectAudio}
       <Header 
@@ -231,14 +238,18 @@ const Quiz = ({
       />
       <div className="flex-1">
         <div className="h-full flex justify-center items-center">
-          <div className="lg:min-h-[350px] lg:w-[600px] w-full px-6 lg:px-0 flex flex-col gap-y-12">
+          <div className="lg:min-h-[370px] lg:w-[600px] w-full px-6 lg:px-0 flex flex-col gap-y-12">
             <h1 className="text-lg lg:text-3xl text-center lg:text-start font-bold text-neutral-700">
               {title}
             </h1>
             <div className="">
               {challenge.type === "ASSIST" && (
                 <QuestionBubble 
-                  question={challenge.question}
+                  challenge={challenge}
+                  options={options}
+                  languageIndex={languageIndex}
+                  initialSettings={initialSettings}
+                  setInitialSettings={setInitialSettings}
                 />
               )}
               <Challenge 
@@ -248,6 +259,9 @@ const Quiz = ({
                 selectedOption={selectedOption}
                 disabled={pending}
                 type={challenge.type}
+                languageIndex={languageIndex}
+                initialSettings={initialSettings}
+                setInitialSettings={setInitialSettings}
               />
             </div>
           </div>
@@ -258,7 +272,7 @@ const Quiz = ({
         status={status}
         onCheck={onContinue}
       />
-    </>
+    </div>
   )
 }
 

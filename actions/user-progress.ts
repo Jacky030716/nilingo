@@ -1,8 +1,9 @@
 "use server";
 
 import db from "@/db/drizzle"
+import { v4 as uuidv4 } from "uuid"
 import { getCourseById, getUserProgress, getUserSubscriptions } from "@/db/queries"
-import { challengeProgress, challenges, userProgress } from "@/db/schema"
+import { challengeProgress, challenges, userProgress, userSettings } from "@/db/schema"
 import { auth, currentUser } from "@clerk/nextjs/server"
 import { and, eq } from "drizzle-orm"
 import { revalidatePath } from "next/cache"
@@ -10,7 +11,7 @@ import { redirect } from "next/navigation"
 
 const POINTS_TO_REFILL = 20
 
-export const upsertUserProgress = async (courseId: number) => {
+export const upsertUserProgress = async (courseId: string) => {
   const { userId } = await auth()
   const user = await currentUser()
 
@@ -49,12 +50,17 @@ export const upsertUserProgress = async (courseId: number) => {
     userImageSrc: user.imageUrl || "/assets/parrot.png"
   })
 
+  await db.insert(userSettings).values({
+    userId,
+    language: 0
+  })
+
   revalidatePath("/courses");
   revalidatePath("/learn");
   redirect("/learn");
 }
 
-export const reduceHearts = async (challengeId: number) => {
+export const reduceHearts = async (challengeId: string) => {
   const { userId } = await auth()
 
   if(!userId){

@@ -1,3 +1,5 @@
+import SettingModal from "@/components/modals/SettingModal";
+
 type Props = {
   children: React.ReactNode;
 }

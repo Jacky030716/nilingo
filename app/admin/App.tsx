@@ -7,9 +7,9 @@ import CourseList from "./course/CourseList"
 import CourseCreate from "./course/Create"
 import CourseEdit from "./course/Edit"
 
-import UnitList from "./units/UnitList"
-import UnitCreate from "./units/Create"
-import UnitEdit from "./units/Edit"
+import UnitList from "./unit/UnitList"
+import UnitCreate from "./unit/Create"
+import UnitEdit from "./unit/Edit"
 
 import LessonList from "./lesson/LessonList"
 import LessonCreate from "./lesson/Create"

@@ -24,6 +24,10 @@ const ChallengeEdit = () => {
             }
           ]}
         />
+        <TextInput 
+          source="questionAudioSrc" 
+          label="Question Audio" 
+        />
         <ReferenceInput 
           source="lessonId"
           reference="lessons"

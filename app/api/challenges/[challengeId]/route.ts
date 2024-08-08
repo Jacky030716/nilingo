@@ -6,11 +6,11 @@ import { isAdmin } from '@/lib/admin';
 
 export const GET = async (
   req: Request,
-  { params } : { params: { challengeId: number }}
+  { params } : { params: { challengeId: string }}
 ) => {
   if(!isAdmin()) return new NextResponse("Unauthorized", { status: 401 })
 
-  const data = await db.query.courses.findFirst({
+  const data = await db.query.challenges.findFirst({
     where: eq(challenges.id, params.challengeId)
   })
 
@@ -19,7 +19,7 @@ export const GET = async (
 
 export const PUT = async (
   req: Request,
-  { params } : { params: { challengeId: number }}
+  { params } : { params: { challengeId: string }}
 ) => {
   if(!isAdmin()) return new NextResponse("Unauthorized", { status: 401 })
 
@@ -33,7 +33,7 @@ export const PUT = async (
 
 export const DELETE = async (
   req: Request,
-  { params } : { params: { challengeId: number }}
+  { params } : { params: { challengeId: string }}
 ) => {
   if(!isAdmin()) return new NextResponse("Unauthorized", { status: 401 })
 

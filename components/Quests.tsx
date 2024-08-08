@@ -5,6 +5,7 @@ import { Progress } from "./ui/progress"
 import { Button } from "./ui/button"
 import Link from "next/link"
 import Image from "next/image"
+import { CldImage } from 'next-cloudinary';
 
 type Props = {
   points: number

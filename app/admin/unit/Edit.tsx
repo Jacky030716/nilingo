@@ -5,6 +5,11 @@ const UnitEdit = () => {
     <Edit>
       <SimpleForm>
         <TextInput 
+          source="id" 
+          label="Id" 
+          validate={[required()]}
+        />
+        <TextInput 
           source="title" 
           label="Title" 
           validate={[required()]}
