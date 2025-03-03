@@ -45,18 +45,33 @@ export const lessonsRelation = relations(lessons, ({many, one}) => ({
     references: [units.id],
   }),
   challenges: many(challenges),
+  glossaries: many(glossary),
 }));
 
-export const challengesEnum = pgEnum("type", ["SELECT", "ASSIST"]);
+export const glossary = pgTable("glossary", {
+  id: uuid("id").primaryKey(),
+  word: text("word").notNull(),
+  lessonId: uuid("lesson_id").references(() => lessons.id, {
+    onDelete: "cascade"
+  }).notNull(),
+})
+
+export const glossaryRelation = relations(glossary, ({one}) => ({
+  lesson: one(lessons, {
+    fields: [glossary.lessonId],
+    references: [lessons.id],
+  }),
+}));
+
+export const challengesEnum = pgEnum("challenge_type", ["SELECT", "ASSIST", "MATCHING", "SENTENCE", "LISTEN"]);
 
 export const challenges = pgTable("challenges", {
   id: uuid("id").primaryKey(),
   lessonId: uuid("lesson_id").references(() => lessons.id, {
     onDelete: "cascade"
   }).notNull(),
-  type: challengesEnum("type").notNull(),
+  type: challengesEnum("challenge_type").notNull(),
   question: text("question").notNull(),
-  questionAudioSrc: text("question_audio_src"),
   order: integer("order").notNull(),
 });
 
@@ -76,8 +91,6 @@ export const challengeOptions = pgTable("challenge_options", {
   }).notNull(),
   text: text("text").notNull(),
   correct: boolean("correct").notNull(),
-  imageSrc: text("image_src"),
-  audioSrc: text("audio_src"),
 });
 
 export const challengeOptionsRelation = relations(challengeOptions, ({one}) => ({
@@ -112,6 +125,7 @@ export const userProgress = pgTable("user_progress", {
   }),
   hearts: integer("hearts").notNull().default(5),
   points: integer("points").notNull().default(0),
+  experience: integer("experience").notNull().default(0),
 });
 
 export const userProgressRelations = relations(userProgress, ({ one, many }) => ({
@@ -143,17 +157,19 @@ export const userSettings = pgTable("user_settings", {
 
 // 任务系统
 export const questsEnum = pgEnum("type", ["DAILY", "COMMON", "EPIC"]);
+export const questTypeEnum = pgEnum("questType", ["POINTS", "UNIT", "CHALLENGE"]);
 
 export const quests = pgTable("quests", {
   id: uuid("id").primaryKey(),
   title: text("title").notNull(),
   description: text("description"),
-  points: integer("points").notNull(),
+  targetPoints: integer("target_points"),
+  rewardPoints: integer("reward_points").notNull(),
+  rewardExp: integer("reward_exp").notNull(),
   category: questsEnum("category").notNull(),
-  completed: boolean("completed").notNull().default(false),
+  type: questTypeEnum("quest_type").notNull(),
   startDate: timestamp("start_date").notNull(),
-  endDate: timestamp("end_date").notNull(),
-  createdAt: timestamp("created_at").notNull().default(sql`now()`),
+  endDate: timestamp("end_date"),
 })
 
 export const questRelations = relations(quests, ({ many }) => ({
@@ -168,7 +184,7 @@ export const userQuestsProgress = pgTable("user_quests_progress", {
   questId: uuid("quest_id").references(() => quests.id, {
     onDelete: "cascade"
   }).notNull(),
-  status: boolean("status").notNull().default(false),
+  completed: boolean("completed").notNull().default(false),
   progress: integer("progress").notNull().default(0),
 })
 

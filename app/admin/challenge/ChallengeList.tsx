@@ -16,10 +16,21 @@ const ChallengeList = () => {
             {
               id: "ASSIST",
               name: "ASSIST"
+            },
+            {
+              id: "MATCHING",
+              name: "MATCHING"
+            },
+            {
+              id: "SENTENCE",
+              name: "SENTENCE"
+            },
+            {
+              id: "LISTEN",
+              name: "LISTEN"
             }
           ]}
         />
-        <TextField source="questionAudioSrc" />
         <ReferenceField source="lessonId" reference="lessons"/>
         <NumberField source="order" />
       </Datagrid>

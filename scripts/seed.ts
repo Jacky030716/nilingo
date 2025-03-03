@@ -1,32 +1,32 @@
-import "dotenv/config"
-import { drizzle } from "drizzle-orm/neon-http"
-import { neon } from "@neondatabase/serverless"
-
-import * as schema from "../db/schema"
+import "dotenv/config";
+import { sql as SQL } from "drizzle-orm"; 
+import { drizzle } from "drizzle-orm/neon-http";
+import { neon } from "@neondatabase/serverless";
+import * as schema from "../db/schema";
 
 const sql = neon(process.env.DB_URL!);
-
-const db = drizzle(sql, {schema});
+const db = drizzle(sql, { schema });
 
 const main = async () => {
   try {
     console.log("Seeding database");
 
-    await db.delete(schema.courses);
-    await db.delete(schema.userProgress);
-    await db.delete(schema.units);
-    await db.delete(schema.lessons);
-    await db.delete(schema.challenges);
+    // Step 1: Drop existing tables or clear data (based on your logic)
     await db.delete(schema.challengeProgress);
     await db.delete(schema.challengeOptions);
+    await db.delete(schema.challenges);
+    await db.delete(schema.lessons);
+    await db.delete(schema.units);
+    await db.delete(schema.courses);
+    await db.delete(schema.userProgress);
     await db.delete(schema.userSubscription);
     await db.delete(schema.quests);
 
-    console.log("Seeding finished")
+    console.log("Seeding finished");
   } catch (error) {
-    console.error(error)
+    console.error(error);
     throw new Error("Failed to seed the database");
   }
-}
+};
 
-main()
+main();

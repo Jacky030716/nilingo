@@ -6,7 +6,10 @@ import {
   lessons, 
   userSubscription,
   quests,
-  userSettings
+  userSettings,
+  userQuestsProgress,
+  challenges,
+  glossary,
 } from '@/db/schema';
 import { cache } from "react";
 import db from "./drizzle";
@@ -247,20 +250,44 @@ export const getTopTenUsers = cache(async () => {
   return data
 })
 
+export const getAllActiveUserIds = cache(async() => {
+  const data = await db.query.userProgress.findMany({
+    columns: {
+      userId: true
+    }
+  })
+
+  return data.map((user) => user.userId)
+})
+
 // Get quests
 export const getQuests = async () => {
   const { userId } = auth();
 
-  if(!userId) return [];
+  if (!userId) return null;
 
-  const data = await db.query.quests.findMany({
-    orderBy: (quests, {asc}) => [asc(quests.expiredTime)],
+  const data = await db.query.userQuestsProgress.findMany({
+    with: {
+      quest: true
+    },
+    where: eq(userQuestsProgress.userId, userId)
+  });
+
+  return data;
+};
+
+
+export const getQuestProgress = cache(async() => {
+  const { userId } = auth();
+
+  if(!userId) return null;
+
+  const data = await db.query.userQuestsProgress.findFirst({
+    where: eq(userQuestsProgress.userId, userId)
   })
 
-  const normalizedData = data.filter((quest) => quest.completed === false && quest.expiredTime > new Date())
-
-  return normalizedData
-}
+  return data;
+})
 
 export const getLanguageSetting = async() => {
   const { userId } = auth();
@@ -268,11 +295,35 @@ export const getLanguageSetting = async() => {
   if(!userId) return null;
 
   try {
-    const data = await db.query.userSettings.findFirst();
-    console.log("Language setting data:", data); // Add this line for debugging
+    const data = await db.query.userSettings.findFirst({
+      where: eq(userSettings.userId, userId)
+    });
     return data;
   } catch (error) {
     console.error("Error fetching language settings:", error);
     return null;
   }
 }
+
+export const getLessonGlossary = cache(async(id?: string) => {
+  const { userId } = await auth()
+
+  if(!userId) return [];
+
+  const courseProgress = await getCourseProgress();
+  const lessonId = id || courseProgress?.activeLessonId;
+
+  if(!lessonId) return [];
+
+  try {
+    const data = await db.query.glossary.findMany({
+      where: eq(glossary.lessonId, lessonId)
+    })
+
+    return data;
+  } catch (error) {
+    
+  }
+})
+
+

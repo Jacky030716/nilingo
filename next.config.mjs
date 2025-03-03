@@ -1,33 +1,36 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  async headers(){
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
+  async headers() {
     return [
       {
         source: "/api/(.*)",
         headers: [
           {
             key: "Access-Control-Allow-Origin",
-            value: "*"
+            value: "*",
           },
           {
             key: "Access-Control-Allow-Methods",
-            value: "GET, POST, PUT, DELETE, OPTIONS"
+            value: "GET, POST, PUT, DELETE, OPTIONS",
           },
           {
             key: "Access-Control-Allow-Headers",
-            value: "Content-Type, Authorization"
+            value: "Content-Type, Authorization",
           },
           {
             key: "Content-Range",
-            value: "bytes: 0-9/*"
-          }
-        ]
-      }
-    ]
+            value: "bytes: 0-9/*",
+          },
+        ],
+      },
+    ];
   },
   images: {
-    domains: ['pixabay.com'],
-  }
+    domains: ["pixabay.com"],
+  },
 };
 
 export default nextConfig;

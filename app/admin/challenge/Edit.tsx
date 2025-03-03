@@ -21,12 +21,20 @@ const ChallengeEdit = () => {
             {
               id: "ASSIST",
               name: "ASSIST"
+            },
+            {
+              id: "MATCHING",
+              name: "MATCHING"
+            },
+            {
+              id: "SENTENCE",
+              name: "SENTENCE"
+            },
+            {
+              id: "LISTEN",
+              name: "LISTEN"
             }
           ]}
-        />
-        <TextInput 
-          source="questionAudioSrc" 
-          label="Question Audio" 
         />
         <ReferenceInput 
           source="lessonId"

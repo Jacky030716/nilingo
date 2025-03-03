@@ -58,14 +58,16 @@ const Sidebar = ({ className }: Props) => {
           <Loader className="w-5 h-5 text-muted-foreground animate-spin"/>
         </ClerkLoading>
         <ClerkLoaded>
-          <Button 
-            className="w-full"
-            variant="primary"
+          <SignOutButton 
+            redirectUrl="/"
           >
-            <SignOutButton 
-              redirectUrl="/"
-            />
-          </Button>
+            <Button 
+              className="w-full"
+              variant="primary"
+            >
+              Sign Out
+            </Button>
+          </SignOutButton>
         </ClerkLoaded>
       </div>
     </div>

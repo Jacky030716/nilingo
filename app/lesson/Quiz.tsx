@@ -1,6 +1,6 @@
 "use client"
 
-import { challengeOptions, challenges, userSettings, userSubscription } from "@/db/schema";
+import { challengeOptions, challenges, glossary, userSettings, userSubscription } from "@/db/schema";
 import { useState, useTransition } from "react";
 import Confetti from "react-confetti";
 import Header from "./Header";
@@ -16,11 +16,17 @@ import ResultCard from "./ResultCard";
 import { useRouter } from "next/navigation";
 import { useHeartModal } from "@/store/use_heart_modal";
 import { usePracticeModal } from "@/store/use_practice_modal";
+import SpeakBubble from "./SpeakBubble";
+import SentenceMatcher from "./SentenceMatcher";
+import { useSettingModal } from "@/store/use_setting_modal";
+import SettingModal from "@/components/modals/SettingModal";
+import { shuffleArray } from "@/lib/utils";
 
 type Props = {
   initialPercentage: number;
   initialLessonId: string;
   initialHearts: number;
+  glossary: (typeof glossary.$inferSelect)[];
   initialLessonChallenges: (typeof challenges.$inferSelect & {
     completed: boolean;
     challengeOptions: typeof challengeOptions.$inferSelect[];
@@ -37,10 +43,12 @@ const Quiz = ({
   initialHearts,
   initialLessonChallenges,
   userSubscription,
-  languageIndex
+  languageIndex,
+  glossary
 }: Props) => {
   const { openModal: openHeartModal } = useHeartModal()
   const { openModal: openPracticeModal } = usePracticeModal()
+  const { openModal: openSettingModal } = useSettingModal()
 
   const [initialSettings, setInitialSettings] = useState({
     speed: 1,
@@ -105,6 +113,19 @@ const Quiz = ({
   const challenge = challenges[activeIndex]
   const options = challenge?.challengeOptions ?? []
 
+  const distractors = shuffleArray(glossary.map((item) => item.word).filter((word) => !options.find((option) => option.text.includes(word))).slice(0, 6))
+
+  const checkAnswer = (correctOption: string) => {
+    if(!selectedOption) return;
+
+    const correctAns = correctOption.replaceAll(" ", "").toLowerCase()
+
+    if(correctAns === selectedOption)
+      return true;
+
+    return false;
+  }
+
   const onNext = () => {
     setActiveIndex((prev) => prev + 1)
   }
@@ -129,7 +150,7 @@ const Quiz = ({
 
     if(!correctOption) return;
 
-    if(correctOption.id === selectedOption){
+    if(correctOption.id === selectedOption || checkAnswer(correctOption.text)){
       startTransition(() => {
         upsertChallengeProgress(challenge.id)
           .then((res) => {
@@ -185,7 +206,7 @@ const Quiz = ({
           numberOfPieces={500}
           tweenDuration={10000}
         />
-        <div className="flex flex-col gap-y-4 lg:gap-y-8 max-w-lg mx-auto text-center items-center justify-center h-full">
+        <div className="flex flex-col gap-y-4 lg:gap-y-8 max-w-xl mx-auto text-center items-center justify-center h-full">
           <Image 
             src={'/assets/finish.svg'}
             alt="Finish"
@@ -224,25 +245,32 @@ const Quiz = ({
   }
 
   const title = challenge.type === "ASSIST" 
-    ? "Select the correct answer" 
+    ? "Select the correct answer"
+    : challenge.type === "SENTENCE"
+      ? "Match the words to form the sentence"
     : challenge.question
 
   return (
     <div className="flex flex-col gap-y-6 overflow-y-hidden">
       {correctAudio}
       {incorrectAudio}
-      <Header 
+      <SettingModal
+        initialSettings={initialSettings}
+        setInitialSettings={setInitialSettings}
+      />
+      <Header
         hearts={heart}
         percentage={percentage}
         hasActiveSubscription={!!userSubscription?.isActive}
+        onSettings={openSettingModal}
       />
-      <div className="flex-1">
+      <div className="flex w-full items-center justify-center">
         <div className="h-full flex justify-center items-center">
-          <div className="lg:min-h-[370px] lg:w-[600px] w-full px-6 lg:px-0 flex flex-col gap-y-12">
+          <div className="lg:min-h-[370px] lg:w-[600px] w-full px-6 lg:px-0 flex flex-col justify-center gap-y-12">
             <h1 className="text-lg lg:text-3xl text-center lg:text-start font-bold text-neutral-700">
               {title}
             </h1>
-            <div className="">
+            <div>
               {challenge.type === "ASSIST" && (
                 <QuestionBubble 
                   challenge={challenge}
@@ -252,23 +280,36 @@ const Quiz = ({
                   setInitialSettings={setInitialSettings}
                 />
               )}
-              <Challenge 
-                options={options}
-                onSelect={onSelect}
-                status={status}
-                selectedOption={selectedOption}
-                disabled={pending}
-                type={challenge.type}
-                languageIndex={languageIndex}
-                initialSettings={initialSettings}
-                setInitialSettings={setInitialSettings}
-              />
+              {challenge.type === "SENTENCE" && (
+                <SentenceMatcher
+                  challenge={challenge}
+                  distractors={distractors}
+                  options={options}
+                  languageIndex={languageIndex}
+                  initialSettings={initialSettings}
+                  status={status}
+                  onSelect={onSelect}
+                />
+              )}
+              {challenge.type !== "SENTENCE" && (
+                <Challenge 
+                  options={options}
+                  onSelect={onSelect}
+                  status={status}
+                  selectedOption={selectedOption}
+                  disabled={pending}
+                  type={challenge.type}
+                  languageIndex={languageIndex}
+                  initialSettings={initialSettings}
+                  setInitialSettings={setInitialSettings}
+                />
+              )}
             </div>
           </div>
         </div>
       </div>
       <Footer 
-        disabled={pending || !selectedOption}
+        disabled={pending}
         status={status}
         onCheck={onContinue}
       />

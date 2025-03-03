@@ -4,6 +4,7 @@ import { Play } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { getImage } from "@/lib/utils";
 import useDebounce from "@/lib/useDebounce";
+import CharacterBubble from "./CharacterBubble";
 
 type Props = {
   challenge: typeof challenges.$inferSelect;
@@ -26,7 +27,7 @@ const QuestionBubble = ({
   const [questionImage, setQuestionImage] = useState<string | null>(null)
   const [utterance, setUtterance] = useState<SpeechSynthesisUtterance | null>(null);
 
-  const correctImg = options.find((option) => option.correct)?.imageSrc
+  const correctImg = options.find((option) => option.correct)?.text
 
   const fetchQuestionImage = async () => {
     const data = await getImage(correctImg || "")
@@ -66,30 +67,10 @@ const QuestionBubble = ({
 
   return (
     <div className="flex flex-col items-center">
-      <div className="flex items-center gap-x-4 mb-6">
-        <Image 
-          src="/assets/parrot.png"
-          alt="Parrot"
-          width={60}
-          height={60}
-          className="hidden lg:block"
-        /> 
-        <Image 
-          src="/assets/parrot.png"
-          alt="Parrot"
-          width={40}
-          height={40}
-          className="lg:hidden block"
-        /> 
-        <div 
-          className="relative py-2 px-4 border-2 rounded-xl text-sm lg:text-base"
-        >
-          {challenge.question.toUpperCase()}
-          <div 
-            className="absolute -left-3 top-1/2 w-0 h-0 border-x-8 border-x-transparent border-t-8 transform -translate-y-1/2 rotate-90"
-          />
-        </div>
-      </div>
+      <CharacterBubble 
+        question={challenge.question}
+        initialSettings={initialSettings}
+      />
       <div 
         className="mb-8 relative cursor-pointer"
         onClick={handleClick}

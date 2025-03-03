@@ -1,4 +1,4 @@
-import { getLanguageSetting, getLesson, getUserProgress, getUserSubscriptions } from '@/db/queries'
+import { getLanguageSetting, getLesson, getLessonGlossary, getUserProgress, getUserSubscriptions } from '@/db/queries'
 import { redirect } from 'next/navigation'
 import React from 'react'
 import Quiz from '../Quiz'
@@ -16,15 +16,17 @@ const LessonIdPage = async ({
   const userProgressData = getUserProgress()
   const userSubscriptionData = getUserSubscriptions()
   const languageData = getLanguageSetting()
+  const lessonGlossaryData = getLessonGlossary(params.lessonId)
 
-  const [lesson, userProgress, userSubs, language] = await Promise.all([
+  const [lesson, userProgress, userSubs, language, lessonGlossary] = await Promise.all([
     lessonData,
     userProgressData,
     userSubscriptionData,
-    languageData
+    languageData,
+    lessonGlossaryData
   ])
 
-  if(!lesson || !userProgress){
+  if(!lesson || !userProgress! || !lessonGlossary){
     redirect('/learn')
   }
 
@@ -40,6 +42,7 @@ const LessonIdPage = async ({
       initialPercentage={initialPercentage}
       userSubscription={userSubs}
       languageIndex={language?.language}
+      glossary={lessonGlossary}
     />
   )
 }

@@ -2,10 +2,9 @@
 
 import React, { useCallback, useEffect, useState } from "react";
 import { useKey } from "react-use";
-import SettingModal from "@/components/modals/SettingModal";
 import { challenges } from "@/db/schema";
 import { cn } from "@/lib/utils";
-import { CldImage } from "next-cloudinary";
+import Image from "next/image";
 
 type Props = {
   id: string;
@@ -78,10 +77,6 @@ const Card = ({
 
   return (
     <>
-      <SettingModal
-        initialSettings={initialSettings}
-        setInitialSettings={setInitialSettings}
-      />
       <div
         onClick={handleClick}
         className={cn(
@@ -97,7 +92,7 @@ const Card = ({
           <div
             className="relative aspect-square mb-4 max-h-[80px] lg:max-h-[150px] w-full flex justify-center items-center"
           >
-            <CldImage
+            <Image
               src={imageSrc}
               alt={text}
               width={160}

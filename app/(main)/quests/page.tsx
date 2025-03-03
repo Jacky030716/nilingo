@@ -1,14 +1,13 @@
 import FeedWrapper from '@/components/FeedWrapper'
 import Promo from '@/components/Promo'
 import StickyWrapper from '@/components/StickyWrapper'
-import { Progress } from '@/components/ui/progress'
 import UserProgress from '@/components/UserProgress'
 
 import { getQuests, getUserProgress, getUserSubscriptions } from '@/db/queries'
 import { redirect } from 'next/navigation'
-import { formatDistance, formatDistanceToNow, subDays } from 'date-fns'
 import Image from 'next/image'
-import { CldImage } from 'next-cloudinary'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import QuestItemBox from './QuestItemBox'
 
 const LeaderboardPage = async () => {
   const userProgressData = getUserProgress()
@@ -58,39 +57,27 @@ const LeaderboardPage = async () => {
           <p className='text-muted-foreground text-center text-lg mb-6'>
             Complete quests by earning points
           </p>
-          <ul className='w-full'>
-            {quests.map((q) => {
-              const progress = (userProgress.points / q.points) * 100
-              const remainingDay = formatDistanceToNow(q.expiredTime, {
-                addSuffix: true
-              })
-
-              return (
-                <div
-                  key={q.title}
-                  className='flex items-center w-full p-4 gap-x-4 border-t-2'
-                >
-                  <Image 
-                    src="/assets/star.svg"
-                    alt='Star'
-                    width={45}
-                    height={45}
+          <div className='w-full flex justify-center'>
+            <Tabs defaultValue="COMMON" className='w-full'>
+              <TabsList
+                className='flex justify-center gap-x-4'
+              >
+                <TabsTrigger value="DAILY">Daily</TabsTrigger>
+                <TabsTrigger value="COMMON">Common</TabsTrigger>
+                <TabsTrigger value="EPIC">Epic</TabsTrigger>
+              </TabsList>
+              {quests.map((q) => (
+                <TabsContent key={q.id} value={q.quest.category}>
+                  <QuestItemBox 
+                    userProgress={userProgress}
+                    quest={q.quest}
+                    value={q.quest.category}
+                    completed={q.completed}
                   />
-                  <div className='flex flex-col gap-y-2 w-full'>
-                    <div className='flex justify-between items-center'>
-                      <p className='text-neutral-700 text-lg font-bold flex justify-between items-center'>
-                        {q.title}
-                      </p>
-                      <p className='text-md font-light text-neutral-500'>
-                        ends {remainingDay}
-                      </p>
-                    </div>
-                    <Progress value={progress} className='h-3'/>
-                  </div>
-                </div>
-              )
-            })}
-          </ul>
+                </TabsContent>
+              ))}
+            </Tabs>
+          </div>
         </div>
       </FeedWrapper>
     </div>
